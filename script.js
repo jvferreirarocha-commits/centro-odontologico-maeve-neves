@@ -2,6 +2,15 @@ const header = document.querySelector("[data-header]");
 const menuToggle = document.querySelector("[data-menu-toggle]");
 const navigation = document.querySelector("[data-navigation]");
 const menuBackdrop = document.querySelector("[data-menu-backdrop]");
+const whatsappGeneralUrl =
+  "https://wa.me/5574999626269?text=Ol%C3%A1%21%20Gostaria%20de%20saber%20mais%20sobre%20os%20atendimentos%20do%20Centro%20Odontol%C3%B3gico%20Maeve%20Neves%20e%20da%20BioX.";
+const navigationLinks = [...navigation.querySelectorAll('a[href^="#"]')];
+const navigationTargets = navigationLinks
+  .map((link) => {
+    const section = document.querySelector(link.getAttribute("href"));
+    return section ? { link, section } : null;
+  })
+  .filter(Boolean);
 
 const setMenuState = (isOpen) => {
   header.classList.toggle("menu-open", isOpen);
@@ -14,6 +23,36 @@ const updateHeader = () => {
   header.classList.toggle("scrolled", window.scrollY > 16);
 };
 
+const setActiveNavigation = (activeLink) => {
+  navigationLinks.forEach((link) => {
+    const isActive = link === activeLink;
+    link.classList.toggle("active", isActive);
+    if (isActive) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+};
+
+const updateActiveNavigation = () => {
+  const referenceLine = header.offsetHeight + 28;
+  let active = navigationTargets[0]?.link;
+
+  navigationTargets.forEach(({ link, section }) => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= referenceLine && rect.bottom > referenceLine) {
+      active = link;
+    }
+  });
+
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+    active = navigationLinks.find((link) => link.getAttribute("href") === "#contato") || active;
+  }
+
+  if (active) setActiveNavigation(active);
+};
+
 menuToggle.addEventListener("click", () => {
   setMenuState(!header.classList.contains("menu-open"));
 });
@@ -21,7 +60,10 @@ menuToggle.addEventListener("click", () => {
 menuBackdrop.addEventListener("click", () => setMenuState(false));
 
 navigation.addEventListener("click", (event) => {
-  if (event.target.closest("a")) {
+  const link = event.target.closest("a");
+
+  if (link) {
+    if (navigationLinks.includes(link)) setActiveNavigation(link);
     setMenuState(false);
   }
 });
@@ -33,12 +75,21 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-window.addEventListener("scroll", updateHeader, { passive: true });
+window.addEventListener(
+  "scroll",
+  () => {
+    updateHeader();
+    updateActiveNavigation();
+  },
+  { passive: true }
+);
 window.addEventListener("resize", () => {
   if (window.innerWidth > 1180) setMenuState(false);
+  updateActiveNavigation();
 });
 
 updateHeader();
+updateActiveNavigation();
 
 const carouselInterval = 5000;
 const carouselInteractionPause = 8000;
@@ -636,7 +687,6 @@ if (treatmentsCarousel) {
   const renderTreatmentPanel = (announce = false) => {
     const treatment = treatments[activeTreatment];
     const number = formatTreatmentNumber(activeTreatment);
-    const message = `Olá! Gostaria de agendar uma avaliação para ${treatment.title}.`;
 
     treatmentCurrent.textContent = number;
     treatmentProgress.style.width = `${((activeTreatment + 1) / treatments.length) * 100}%`;
@@ -646,7 +696,7 @@ if (treatmentsCarousel) {
     treatmentDescription.textContent = treatment.description;
     treatmentHighlightOne.textContent = treatment.highlights[0];
     treatmentHighlightTwo.textContent = treatment.highlights[1];
-    treatmentCta.href = `https://wa.me/5574999626269?text=${encodeURIComponent(message)}`;
+    treatmentCta.href = whatsappGeneralUrl;
 
     treatmentDots.forEach((dot, index) => {
       dot.setAttribute("aria-current", String(index === activeTreatment));
@@ -780,8 +830,7 @@ if (bioxSection) {
   const bioxServiceList = bioxSection.querySelector("[data-biox-service-list]");
   const bioxReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const bioxWhatsappLink =
-    "https://wa.me/5574999626269?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20um%20exame%20na%20BioX%20Centro%20de%20Radiologia.";
+  const bioxWhatsappLink = whatsappGeneralUrl;
 
   const bioxServices = [
     {
