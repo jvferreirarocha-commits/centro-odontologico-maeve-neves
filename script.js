@@ -36,7 +36,7 @@ const setActiveNavigation = (activeLink) => {
 };
 
 const updateActiveNavigation = () => {
-  const referenceLine = header.offsetHeight + 28;
+  const referenceLine = header.offsetHeight + 36;
   let active = navigationTargets[0]?.link;
 
   navigationTargets.forEach(({ link, section }) => {
@@ -630,8 +630,15 @@ if (treatmentsCarousel) {
       category: "Saúde e harmonia",
       title: "Prevenção e Estética",
       description:
-        "Acompanhamento preventivo da saúde dentária e gengival, diagnóstico digital da oclusão e procedimentos em resina para fechamento de diastemas e melhorias estéticas.",
+        "Acompanhamento preventivo da saúde dentária e gengival, diagnóstico digital da oclusão e procedimentos em resina para fechamento de diastemas, melhorias estéticas e clareamento dentário.",
       highlights: ["Prevenção e diagnóstico", "Resina e estética do sorriso"],
+    },
+    {
+      category: "Estética do sorriso",
+      title: "Clareamento Dental",
+      description:
+        "Tratamento indicado para clarear os dentes de forma segura e planejada, buscando um sorriso mais harmônico, natural e alinhado às necessidades de cada paciente.",
+      highlights: ["Clareamento seguro", "Sorriso mais harmônico"],
     },
   ];
 
