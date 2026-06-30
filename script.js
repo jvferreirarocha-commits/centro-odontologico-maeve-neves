@@ -5,9 +5,10 @@ const menuBackdrop = document.querySelector("[data-menu-backdrop]");
 const whatsappGeneralUrl =
   "https://wa.me/5574999626269?text=Ol%C3%A1%21%20Gostaria%20de%20saber%20mais%20sobre%20os%20atendimentos%20do%20Centro%20Odontol%C3%B3gico%20Maeve%20Neves%20e%20da%20BioX.";
 const navigationLinks = [...navigation.querySelectorAll('a[href^="#"]')];
+const internalAnchorLinks = [...document.querySelectorAll('a[href^="#"]')];
 const navigationTargets = navigationLinks
   .map((link) => {
-    const section = document.querySelector(link.getAttribute("href"));
+    const section = document.getElementById(link.getAttribute("href").slice(1));
     return section ? { link, section } : null;
   })
   .filter(Boolean);
@@ -35,13 +36,30 @@ const setActiveNavigation = (activeLink) => {
   });
 };
 
+const getHeaderScrollOffset = (target) => {
+  const collapsedHeaderHeight = window.matchMedia("(max-width: 700px)").matches ? 78 : 94;
+  const headerHeight = target?.id === "inicio" ? header?.offsetHeight || collapsedHeaderHeight : collapsedHeaderHeight;
+  return headerHeight + 20;
+};
+
+const scrollToAnchor = (target) => {
+  const targetPosition = target.getBoundingClientRect().top + window.scrollY - getHeaderScrollOffset(target);
+
+  window.scrollTo({
+    top: Math.max(targetPosition, 0),
+    behavior: "smooth",
+  });
+};
+
 const updateActiveNavigation = () => {
-  const referenceLine = header.offsetHeight + 36;
+  const currentPosition = window.scrollY + (header ? header.offsetHeight : 90) + 80;
   let active = navigationTargets[0]?.link;
 
   navigationTargets.forEach(({ link, section }) => {
-    const rect = section.getBoundingClientRect();
-    if (rect.top <= referenceLine && rect.bottom > referenceLine) {
+    const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    const sectionBottom = sectionTop + section.offsetHeight;
+
+    if (sectionTop <= currentPosition && sectionBottom > currentPosition) {
       active = link;
     }
   });
@@ -59,13 +77,21 @@ menuToggle.addEventListener("click", () => {
 
 menuBackdrop.addEventListener("click", () => setMenuState(false));
 
-navigation.addEventListener("click", (event) => {
+document.addEventListener("click", (event) => {
   const link = event.target.closest("a");
+  if (!link || !internalAnchorLinks.includes(link)) return;
 
-  if (link) {
-    if (navigationLinks.includes(link)) setActiveNavigation(link);
-    setMenuState(false);
-  }
+  const targetId = link.getAttribute("href").slice(1);
+  if (!targetId) return;
+
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  event.preventDefault();
+
+  if (navigationLinks.includes(link)) setActiveNavigation(link);
+  setMenuState(false);
+  scrollToAnchor(target);
 });
 
 document.addEventListener("keydown", (event) => {
