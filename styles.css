@@ -18,12 +18,12 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-height) + 24px);
+  scroll-padding-top: 120px;
 }
 
 section[id],
 footer[id] {
-  scroll-margin-top: calc(var(--header-height) + 24px);
+  scroll-margin-top: 120px;
 }
 
 body {
